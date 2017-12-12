@@ -1,0 +1,9 @@
+{%extends "layout.html"%}
+{% block body %}
+
+<ul>
+{% for dir in dirs%}
+    <li><a href="/{{dir}}">{{dir}}</a></li>
+{%endfor%}
+</ul>
+{%endblock%}

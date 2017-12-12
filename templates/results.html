@@ -1,0 +1,72 @@
+{%extends "layout.html"%}
+{% block body %}
+<script src="/static/chart.js"></script>
+<script src="/static/jquery.js"></script>
+<script>
+    function getRandomColor() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++ ) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
+</script>
+
+{% for file in files%}
+<div class="panel panel-default">
+    <div class="panel-heading">{{file}}</div>
+    <div class="panel-body"><canvas id="chart_{{file}}" width="740" height="200"></canvas></div>
+</div>
+<script>
+    $.getJSON( window.location.pathname+"/{{file}}", function( data ) {
+    
+        // Getting labels
+        var labels = data.labels;
+        
+        // Getting all other data (name and collection)
+        datasets = new Array()
+        Object.keys(data).map(function(key){
+            datasets.push({name:key, data: data[key]});
+        });
+
+        // Creating datasets for chart
+        chartsets = new Array();
+        color = null;
+        datasets.map(function(dataset){
+            color = getRandomColor()
+            chartsets.push({
+                label: dataset['name'],
+                data: dataset['data'],
+                backgroundColor: color,
+                borderColor: color,
+                borderWidth: 1
+            });
+        });
+        
+        // Creating graph
+        var ctx = document.getElementById("chart_{{file}}").getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data:{
+                labels: labels,
+                datasets:chartsets                
+            }
+        });       
+    });    
+</script>
+{%endfor%}
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        $("canvas").click(function(event){
+            var id = this.id;
+            this.toBlob(function(blob){
+                saveAs(blob,id+".png");
+            });
+            event.stopPropagation();
+        })
+    });
+</script>
+
+{%endblock%}
